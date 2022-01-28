@@ -1,11 +1,7 @@
+import { PoolExited, PoolJoined } from './../generated/BasketContract/BasketFacet';
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
-  PieFactoryContract,
   DefaultControllerSet,
-  FacetAdded,
-  FacetRemoved,
-  OwnershipTransferred,
-  PieCreated
 } from "../generated/PieFactoryContract/PieFactoryContract"
 import { ExampleEntity } from "../generated/schema"
 
@@ -57,10 +53,9 @@ export function handleDefaultControllerSet(event: DefaultControllerSet): void {
   // - contract.pies(...)
 }
 
-export function handleFacetAdded(event: FacetAdded): void {}
+export function handlePoolJoined(event: PoolJoined): void {
+  const entity = new ExampleEntity(event.transaction.hash.toHex());
+  entity.save();
+}
 
-export function handleFacetRemoved(event: FacetRemoved): void {}
-
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
-
-export function handlePieCreated(event: PieCreated): void {}
+export function handlePoolExited(event: PoolExited): void { }

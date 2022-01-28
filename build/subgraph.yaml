@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: BasketContract
@@ -18,10 +18,10 @@ dataSources:
         - PoolExited
       abis:
         - name: BasketFacet
-          file: ./abis/BasketFacet.json
+          file: BasketContract/abis/BasketFacet.json
       eventHandlers:
         - event: PoolJoined(indexed address,uint256,uint16)
           handler: handlePoolJoined
         - event: PoolExited(indexed address,uint256,uint16)
           handler: handlePoolExited
-      file: ./src/mapping.ts
+      file: BasketContract/BasketContract.wasm

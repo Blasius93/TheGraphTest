@@ -1,0 +1,76 @@
+version: '3'
+services:
+  graph-node:
+    image: graphprotocol/graph-node:latest
+    ports:
+      - '80:8000'
+      - '8030:8030'
+      - '8020:8020'
+    depends_on:
+      - ipfs
+      - pppostgres
+    environment:
+      postgres_host: pppostgres
+      postgres_port: 5432
+      postgres_user: graph-node
+      postgres_pass: root
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ETHEREUM_RPC: matic:https://polygon-mainnet.infura.io/v3/bac8bfd1ed38456d89be82e3edc52951
+      RUST_LOG: error
+      GRAPH_LOG: info
+      GRAPH_ETH_CALL_BY_NUMBER: 'true'
+      ETHEREUM_POLLING_INTERVAL: 15000
+      ETHEREUM_ANCESTOR_COUNT: 15
+      ETHEREUM_REORG_THRESHOLD: 15
+      EXPERIMENTAL_SUBGRAPH_VERSION_SWITCHING_MODE: synced
+      RUST_BACKTRACE: 1
+    logging:
+      options:
+        max-size: 100m
+
+    restart: always
+  ipfs:
+    image: ipfs/go-ipfs:v0.4.23
+    ports:
+      - '5001:5001'
+    volumes:
+      - ./data/ipfs:/data/ipfs
+    logging:
+        options:
+          max-size: 100m
+    restart: always
+  
+  pppostgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    command: ['postgres', '-cshared_preload_libraries=pg_stat_statements']
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: graph-node
+      POSTGRES_PORT: 5432
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    restart: always
+    logging:
+      options:
+        max-size: 100m
+
+  # graph-deployer:
+  #   build: ../
+  #   depends_on:
+  #     - graph-node
+  #     - pppostgres
+  #   environment:
+  #     - GRAPH_ADMIN_RPC_URL=http://graph-node:8020/
+  #     - IPFS_URL=http://ipfs:5001
+  #     - SUBGRAPH_NAME=reflexer-labs/rai
+  #     - NETWORK=mumbai
+  #   command: './docker/wait-for-it.sh\ graph-node:8000\ --timeout=40\ &&\ npm\ run\ deploy-local'
+  #   logging:
+  #     options:
+  #       max-size: 100m
+        #docker run -it --network docker_default docker_graph-deployer /bin/sh
+        #GRAPH_ADMIN_RPC_URL=http://graph-node:8020/ IPFS_URL=http://ipfs:5001 SUBGRAPH_NAME=reflexer-labs/rai NETWORK=kovan npm run deploy-local
